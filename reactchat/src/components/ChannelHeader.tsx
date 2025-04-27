@@ -2,7 +2,7 @@ import { AppBar, Box, Toolbar, Typography } from "@mui/material";
 import TagIcon from "@mui/icons-material/Tag";
 
 interface ChannelHeaderProps {
-  selectedChannel: number | null;
+  selectedChannel: string | null;
   serverName?: string;
   channelName?: string;
   channelTopic?: string;

@@ -15,11 +15,11 @@ import { Server } from "../types/interfaces";
 interface ServerItemProps {
   server: Server;
   isExpanded: boolean;
-  selectedServer: number | null;
-  selectedChannel: number | null;
-  onServerSelect: (serverId: number) => void;
-  onChannelSelect: (serverId: number, channelId: number) => void;
-  onToggleExpand: (serverId: number) => void;
+  selectedServer: string | null;
+  selectedChannel: string | null;
+  onServerSelect: (serverId: string) => void;
+  onChannelSelect: (serverId: string, channelId: string) => void;
+  onToggleExpand: (serverId: string) => void;
 }
 
 const ServerItem = ({

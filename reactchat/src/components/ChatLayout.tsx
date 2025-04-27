@@ -6,14 +6,14 @@ import ChatArea from "./ChatArea";
 const SIDEBAR_WIDTH = 240;
 
 const ChatLayout = () => {
-  const [selectedServer, setSelectedServer] = useState<number | null>(null);
-  const [selectedChannel, setSelectedChannel] = useState<number | null>(null);
+  const [selectedServer, setSelectedServer] = useState<string | null>(null);
+  const [selectedChannel, setSelectedChannel] = useState<string | null>(null);
 
-  const handleServerSelect = (serverId: number) => {
+  const handleServerSelect = (serverId: string) => {
     setSelectedServer(serverId);
   };
 
-  const handleChannelSelect = (serverId: number, channelId: number) => {
+    const handleChannelSelect = (serverId: string, channelId: string) => {
     setSelectedServer(serverId);
     setSelectedChannel(channelId);
   };

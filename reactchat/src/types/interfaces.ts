@@ -1,18 +1,18 @@
 export interface Channel {
-  id: number;
+  id: string;
   name: string;
   topic: string;
   banner: string | null;
   icon: string | null;
-  server: number;
-  owner: number;
+  server: string;
+  owner: string;
 }
 
 export interface Server {
-  id: number;
+  id: string;
   name: string;
   description: string | null;
-  owner: number;
+  owner: string;
   category: string;
   channel_server: Channel[];
 }
@@ -22,6 +22,7 @@ export interface Message {
   text: string;
   author: string;
   timestamp: string;
+  channel: string;
 }
 
 export interface ChannelMessages {

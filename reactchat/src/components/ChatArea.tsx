@@ -1,74 +1,22 @@
 import { useState, useEffect } from "react";
 import { Box } from "@mui/material";
 import ChannelHeader from "./ChannelHeader";
-import MessageList from "./MessageList";
-import MessageInput from "./MessageInput";
+
 import WelcomeScreen from "./WelcomeScreen";
 import LoadingScreen from "./LoadingScreen";
 import useCrud from "../hook/useCrud";
-import { ChannelMessages, Server, Channel } from "../types/interfaces";
+import { Server, Channel } from "../types/interfaces";
 import MessageArea from "./MessageArea";
 
-// Dummy message data - in a real app, this would come from the API
-// const dummyMessages: Record<number, ChannelMessages> = {
-//   2: {
-//     // Channel ID for "developers"
-//     messages: [
-//       {
-//         id: 1,
-//         text: "Welcome to the developers chat!",
-//         author: "System",
-//         timestamp: "2023-07-15 10:00",
-//       },
-//       {
-//         id: 2,
-//         text: "Anyone working on a React project?",
-//         author: "Alex",
-//         timestamp: "2023-07-15 10:05",
-//       },
-//       {
-//         id: 3,
-//         text: "I'm building a chat app with React and FastAPI!",
-//         author: "Sam",
-//         timestamp: "2023-07-15 10:07",
-//       },
-//     ],
-//   },
-//   3: {
-//     // Channel ID for "techs"
-//     messages: [
-//       {
-//         id: 4,
-//         text: "What tech are you all using these days?",
-//         author: "System",
-//         timestamp: "2023-07-15 11:00",
-//       },
-//       {
-//         id: 5,
-//         text: "I'm really enjoying TypeScript with React!",
-//         author: "Taylor",
-//         timestamp: "2023-07-15 11:30",
-//       },
-//       {
-//         id: 6,
-//         text: "Python + FastAPI is my current go-to for backends",
-//         author: "Jordan",
-//         timestamp: "2023-07-15 11:35",
-//       },
-//     ],
-//   },
-// };
-
 interface ChatAreaProps {
-  selectedServer: number | null;
-  selectedChannel: number | null;
+  selectedServer: string | null;
+  selectedChannel: string | null;
 }
 
 const ChatArea = ({ selectedServer, selectedChannel }: ChatAreaProps) => {
   const [currentServer, setCurrentServer] = useState<Server | null>(null);
   const [currentChannel, setCurrentChannel] = useState<Channel | null>(null);
 
-  // Fetch server data
   const {
     data: servers = [],
     loading,
@@ -78,13 +26,11 @@ const ChatArea = ({ selectedServer, selectedChannel }: ChatAreaProps) => {
     initialData: [],
   });
 
-  // Fetch data on initial mount
   useEffect(() => {
     getAll();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Update current server and channel when selection or data changes
   useEffect(() => {
     if (!servers.length) return;
 

@@ -5,7 +5,7 @@ import useWebSocket from "react-use-websocket";
 import type { Message } from "../types/interfaces";
 import { WS_URL } from "../config";
 
-const MessageArea = ({ selectedChannel }: { selectedChannel: number }) => {
+const MessageArea = ({ selectedChannel }: { selectedChannel: string }) => {
   const [newMessages, setNewMessages] = useState<Message[]>([]);
   const socketUrl = `${WS_URL}/${selectedChannel}/`;
 
@@ -48,7 +48,7 @@ const MessageArea = ({ selectedChannel }: { selectedChannel: number }) => {
 
   return (
     <>
-      <MessageList messages={newMessages.filter((msg) => msg.channel === selectedChannel)} />
+        <MessageList messages={newMessages.filter((msg) => msg.channel === selectedChannel)} />
       <MessageInput
         onSendMessage={(msg) => {
           sendJsonMessage({ message: msg, channel: selectedChannel });

@@ -15,10 +15,10 @@ import { Server } from "../types/interfaces";
 
 interface SidebarProps {
   width: number;
-  selectedServer: number | null;
-  selectedChannel: number | null;
-  onServerSelect: (serverId: number) => void;
-  onChannelSelect: (serverId: number, channelId: number) => void;
+  selectedServer: string | null;
+  selectedChannel: string | null;
+  onServerSelect: (serverId: string) => void;
+  onChannelSelect: (serverId: string, channelId: string) => void;
 }
 
 const Sidebar = ({
@@ -29,7 +29,7 @@ const Sidebar = ({
   onChannelSelect,
 }: SidebarProps) => {
   const [expandedServers, setExpandedServers] = useState<
-    Record<number, boolean>
+    Record<string, boolean>
   >({});
 
   // Use useCrud directly in the component
@@ -55,15 +55,15 @@ const Sidebar = ({
     }
   }, [servers, selectedServer]);
 
-  const handleServerSelect = (serverId: number) => {
+  const handleServerSelect = (serverId: string) => {
     onServerSelect(serverId);
   };
 
-  const handleChannelSelect = (serverId: number, channelId: number) => {
+  const handleChannelSelect = (serverId: string, channelId: string) => {
     onChannelSelect(serverId, channelId);
   };
 
-  const toggleServerExpanded = (serverId: number) => {
+  const toggleServerExpanded = (serverId: string) => {
     setExpandedServers((prev) => ({
       ...prev,
       [serverId]: !prev[serverId],

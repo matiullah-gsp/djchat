@@ -4,9 +4,9 @@ import { Channel } from "../types/interfaces";
 
 interface ChannelItemProps {
   channel: Channel;
-  serverId: number;
+  serverId: string;
   isSelected: boolean;
-  onChannelSelect: (serverId: number, channelId: number) => void;
+  onChannelSelect: (serverId: string, channelId: string) => void;
 }
 
 const ChannelItem = ({
