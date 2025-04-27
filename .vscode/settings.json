@@ -14,9 +14,8 @@
         "119"
     ],
     "[python]": {
-
         "editor.codeActionsOnSave": {
-            "source.organizaImports": true
+            "source.organizaImports": "explicit"
         },
     }
 }
