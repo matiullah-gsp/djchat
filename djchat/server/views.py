@@ -11,7 +11,7 @@ from rest_framework.permissions import IsAuthenticated
 class ServerListViewSet(viewsets.ViewSet):
     queryset = Server.objects.all()
     serializer_class = ServerSerializer
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def list(self, request):
         category = request.query_params.get("category", None)
