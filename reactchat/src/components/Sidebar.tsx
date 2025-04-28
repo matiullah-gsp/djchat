@@ -11,14 +11,14 @@ import RefreshIcon from "@mui/icons-material/Refresh";
 import ServerItem from "./ServerItem";
 import LoadingScreen from "./LoadingScreen";
 import useCrud from "../hook/useCrud";
-import { Server } from "../types/interfaces";
+import type { Server, Channel } from "../types/interfaces";
 
 interface SidebarProps {
   width: number;
-  selectedServer: string | null;
-  selectedChannel: string | null;
-  onServerSelect: (serverId: string) => void;
-  onChannelSelect: (serverId: string, channelId: string) => void;
+  selectedServer: Server | null;
+  selectedChannel: Channel | null;
+  onServerSelect: (server: Server) => void;
+  onChannelSelect: (server: Server, channel: Channel) => void;
 }
 
 const Sidebar = ({
@@ -31,20 +31,23 @@ const Sidebar = ({
   const [expandedServers, setExpandedServers] = useState<
     Record<string, boolean>
   >({});
+  const [servers, setServers] = useState<Server[]>([]);
 
   // Use useCrud directly in the component
   const {
-    data: servers = [],
+    // data: servers = [],
     loading,
     getAll,
   } = useCrud<Server[]>({
-    apiPath: "servers/select/",
+    apiPath: "servers/",
     initialData: [],
   });
 
   // Fetch data only once on component mount
   useEffect(() => {
-    getAll();
+    getAll().then((data) => {
+      setServers(data);
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -55,23 +58,25 @@ const Sidebar = ({
     }
   }, [servers, selectedServer]);
 
-  const handleServerSelect = (serverId: string) => {
-    onServerSelect(serverId);
+  const handleServerSelect = (server: Server) => {
+    onServerSelect(server);
   };
 
-  const handleChannelSelect = (serverId: string, channelId: string) => {
-    onChannelSelect(serverId, channelId);
+  const handleChannelSelect = (server: Server, channel: Channel) => {
+    onChannelSelect(server, channel);
   };
 
-  const toggleServerExpanded = (serverId: string) => {
+  const toggleServerExpanded = (server: Server) => {
     setExpandedServers((prev) => ({
       ...prev,
-      [serverId]: !prev[serverId],
+      [server.id]: !prev[server.id],
     }));
   };
 
   const handleRefresh = () => {
-    getAll();
+    getAll().then((data) => {
+      setServers(data);
+    });
   };
 
   if (loading && servers.length === 0) {

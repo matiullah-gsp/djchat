@@ -15,10 +15,10 @@ class ChannelSerializer(serializers.ModelSerializer):
 
 
 class ServerSerializer(serializers.ModelSerializer):
-    channel_server = ChannelSerializer(many=True)
-    num_members = serializers.IntegerField(read_only=True)
-    # category = serializers.StringRelatedField()
+    channels = ChannelSerializer(many=True)
+    members_count = serializers.IntegerField(read_only=True)
+    category = serializers.StringRelatedField()
 
     class Meta:
         model = Server
-        exclude = ["member"]
+        exclude = ["members"]

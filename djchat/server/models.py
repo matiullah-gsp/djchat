@@ -6,6 +6,7 @@ import os
 from .validators import validate_icon_image_size, validate_image_file_extension
 from base.models import BaseUUIDModel
 
+
 def category_icon_upload_path(instance, filename):
     return f"category_icons/{instance.id}/{filename}"
 
@@ -30,7 +31,6 @@ class Category(BaseUUIDModel):
                 existing.icon.delete(save=False)
         super().save(*args, **kwargs)
 
-
     @receiver(models.signals.pre_delete, sender="server.Category")
     def category_delete_files(sender, instance, **kwargs):
         for field in instance._meta.fields:
@@ -53,8 +53,8 @@ class Server(BaseUUIDModel):
         Category, on_delete=models.CASCADE, related_name="server_category"
     )
     description = models.CharField(max_length=250, blank=True, null=True)
-    member = models.ManyToManyField(
-        settings.AUTH_USER_MODEL, related_name="server_member"
+    members = models.ManyToManyField(
+        settings.AUTH_USER_MODEL, related_name="server_members"
     )
 
     def __str__(self):
@@ -68,7 +68,7 @@ class Channel(BaseUUIDModel):
     )
     topic = models.CharField(max_length=100)
     server = models.ForeignKey(
-        Server, on_delete=models.CASCADE, related_name="channel_server"
+        Server, on_delete=models.CASCADE, related_name="channels"
     )
     banner = models.ImageField(
         upload_to=server_banner_upload_path,
@@ -92,7 +92,6 @@ class Channel(BaseUUIDModel):
                 existing.icon.delete(save=False)
         self.name = self.name.lower()
         super().save(*args, **kwargs)
-
 
     @receiver(models.signals.pre_delete, sender="server.Server")
     def server_delete_files(sender, instance, **kwargs):

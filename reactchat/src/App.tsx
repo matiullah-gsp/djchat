@@ -1,8 +1,7 @@
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
-import Home from "./pages/Home";
-import Server from "./pages/Server";
+import Routes from "./Routes";
+import AuthProvider from "./providers/AuthProvider";
 // Create a dark theme for the chat app
 const darkTheme = createTheme({
   palette: {
@@ -24,23 +23,14 @@ const darkTheme = createTheme({
   },
 });
 
-const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <Home />,
-  },
-  {
-    path: "/server",
-    element: <Server />,
-  },
-]);
-
 const App = () => {
   return (
-    <ThemeProvider theme={darkTheme}>
-      <CssBaseline />
-      <RouterProvider router={router} />
-    </ThemeProvider>
+    <AuthProvider>
+      <ThemeProvider theme={darkTheme}>
+        <CssBaseline />
+        <Routes />
+      </ThemeProvider>
+    </AuthProvider>
   );
 };
 

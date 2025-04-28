@@ -18,7 +18,9 @@ class ServerListViewSet(viewsets.ViewSet):
         qty = request.query_params.get("qty", None)
         by_user = request.query_params.get("by_user", None) == "true"
         server_id = request.query_params.get("server_id", None)
-        with_num_members = request.query_params.get("with_num_members", None) == "true"
+        with_members_count = (
+            request.query_params.get("with_members_count", None) == "true"
+        )
 
         if by_user and not server_id and not request.user.is_authenticated:
             raise ValidationError("User is not authenticated")
@@ -29,9 +31,9 @@ class ServerListViewSet(viewsets.ViewSet):
             servers = servers.filter(category=category)
             print(servers)
 
-        # Always annotate with num_members if requested
-        if with_num_members:
-            servers = servers.annotate(num_members=Count("member"))
+        # Always annotate with members_count if requested
+        if with_members_count:
+            servers = servers.annotate(members_count=Count("member"))
 
         if by_user:
             user_id = request.user.id

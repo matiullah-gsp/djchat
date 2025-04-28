@@ -12,7 +12,7 @@ interface UseCrudProps<T> {
 function useCrud<T>({ apiPath, initialData }: UseCrudProps<T>) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<unknown | null>(null);
-  const [data, setData] = useState<T | undefined>(initialData);
+  //   const [data, setData] = useState<T | undefined>(initialData);
   const axios = useAxiosWithInterceptor();
 
   const url = `${BASE_URL}/${apiPath}`;
@@ -23,7 +23,7 @@ function useCrud<T>({ apiPath, initialData }: UseCrudProps<T>) {
       setLoading(true);
       const response = await axios.get(url);
       setLoading(false);
-      setData(response.data);
+      return response.data;
     } catch (error) {
       setLoading(false);
       if (error instanceof AxiosError) {
@@ -38,7 +38,7 @@ function useCrud<T>({ apiPath, initialData }: UseCrudProps<T>) {
         setLoading(true);
         const response = await axios.post(url, data);
         setLoading(false);
-        setData(response.data);
+        return response.data;
       } catch (error) {
         setLoading(false);
         if (error instanceof AxiosError) {
@@ -55,7 +55,7 @@ function useCrud<T>({ apiPath, initialData }: UseCrudProps<T>) {
         setLoading(true);
         const response = await axios.get(`${url}/${id}`);
         setLoading(false);
-        setData(response.data);
+        return response.data;
       } catch (error) {
         setLoading(false);
         if (error instanceof AxiosError) {
@@ -72,7 +72,7 @@ function useCrud<T>({ apiPath, initialData }: UseCrudProps<T>) {
         setLoading(true);
         const response = await axios.put(`${url}/${id}`, data);
         setLoading(false);
-        setData(response.data);
+        return response.data;
       } catch (error) {
         setLoading(false);
         if (error instanceof AxiosError) {
@@ -99,7 +99,17 @@ function useCrud<T>({ apiPath, initialData }: UseCrudProps<T>) {
     [axios, url]
   );
 
-  return { getAll, create, read, update, remove, loading, error, data };
+  return {
+    getAll,
+    create,
+    read,
+    update,
+    remove,
+    loading,
+    error,
+    // data,
+    // setData,
+  };
 }
 
 export default useCrud;

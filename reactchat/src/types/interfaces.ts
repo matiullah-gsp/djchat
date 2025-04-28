@@ -14,15 +14,15 @@ export interface Server {
   description: string | null;
   owner: string;
   category: string;
-  channel_server: Channel[];
+  channels: Channel[];
 }
 
 export interface Message {
-  id: number;
-  text: string;
-  author: string;
+  id: string;
+  conversation: string;
+  content: string;
+  sender: string;
   timestamp: string;
-  channel: string;
 }
 
 export interface ChannelMessages {

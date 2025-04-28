@@ -10,16 +10,16 @@ import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import ForumIcon from "@mui/icons-material/Forum";
 import ChannelItem from "./ChannelItem";
-import { Server } from "../types/interfaces";
+import type { Server, Channel } from "../types/interfaces";
 
 interface ServerItemProps {
   server: Server;
   isExpanded: boolean;
-  selectedServer: string | null;
-  selectedChannel: string | null;
-  onServerSelect: (serverId: string) => void;
-  onChannelSelect: (serverId: string, channelId: string) => void;
-  onToggleExpand: (serverId: string) => void;
+  selectedServer: Server | null;
+  selectedChannel: Channel | null;
+  onServerSelect: (server: Server) => void;
+  onChannelSelect: (server: Server, channel: Channel) => void;
+  onToggleExpand: (server: Server) => void;
 }
 
 const ServerItem = ({
@@ -32,22 +32,22 @@ const ServerItem = ({
   onToggleExpand,
 }: ServerItemProps) => {
   const handleServerClick = () => {
-    onToggleExpand(server.id);
-    onServerSelect(server.id);
+    onToggleExpand(server);
+    onServerSelect(server);
   };
 
-  const hasChannels = server.channel_server && server.channel_server.length > 0;
+  const hasChannels = server.channels && server.channels.length > 0;
 
   return (
     <Box>
       <ListItemButton
         onClick={handleServerClick}
-        selected={selectedServer === server.id}
+        selected={selectedServer?.id === server.id}
         sx={{
           borderRadius: 1,
           mb: 0.5,
           backgroundColor:
-            selectedServer === server.id ? "#393c43" : "transparent",
+            selectedServer?.id === server.id ? "#393c43" : "transparent",
           "&:hover": { backgroundColor: "#393c43" },
         }}
       >
@@ -70,15 +70,16 @@ const ServerItem = ({
       {hasChannels && (
         <Collapse in={isExpanded} timeout="auto" unmountOnExit>
           <List component="div" disablePadding>
-            {server.channel_server.map((channel) => (
+            {server.channels.map((channel) => (
               <ChannelItem
                 key={channel.id}
                 channel={channel}
                 serverId={server.id}
                 isSelected={
-                  selectedServer === server.id && selectedChannel === channel.id
+                  selectedServer?.id === server.id &&
+                  selectedChannel?.id === channel.id
                 }
-                onChannelSelect={onChannelSelect}
+                onChannelSelect={() => onChannelSelect(server, channel)}
               />
             ))}
           </List>

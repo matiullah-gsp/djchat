@@ -31,8 +31,8 @@ const ChannelItem = ({
         <TagIcon />
       </ListItemIcon>
       <ListItemText
-        primary={channel.name}
-        secondary={channel.topic}
+        primary={channel.topic}
+        secondary={channel.name}
         primaryTypographyProps={{
           sx: {
             color: isSelected ? "#fff" : "#8e9297",

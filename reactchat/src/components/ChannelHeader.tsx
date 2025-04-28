@@ -2,14 +2,14 @@ import { AppBar, Box, Toolbar, Typography } from "@mui/material";
 import TagIcon from "@mui/icons-material/Tag";
 
 interface ChannelHeaderProps {
-  selectedChannel: string | null;
+  selectedChannelId: string | null;
   serverName?: string;
   channelName?: string;
   channelTopic?: string;
 }
 
 const ChannelHeader = ({
-  selectedChannel,
+  selectedChannelId,
   serverName,
   channelName,
   channelTopic,
@@ -26,21 +26,21 @@ const ChannelHeader = ({
       }}
     >
       <Toolbar>
-        {selectedChannel ? (
+        {selectedChannelId ? (
           <>
             <TagIcon sx={{ mr: 1, color: "#72767d" }} />
             <Box sx={{ display: "flex", flexDirection: "column" }}>
               <Typography variant="h6" noWrap component="div">
-                {channelName || "channel-name"}
+                {channelTopic || "channel-name"}
               </Typography>
-              {channelTopic && (
+              {channelName && (
                 <Typography
                   variant="body2"
                   color="textSecondary"
                   sx={{ opacity: 0.7 }}
                   noWrap
                 >
-                  {channelTopic}
+                  {channelName}
                 </Typography>
               )}
             </Box>

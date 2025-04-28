@@ -1,59 +1,85 @@
 import MessageList from "./MessageList";
 import MessageInput from "./MessageInput";
-import { useEffect, useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import useWebSocket from "react-use-websocket";
 import type { Message } from "../types/interfaces";
 import { WS_URL } from "../config";
+import useCrud from "../hook/useCrud";
 
-const MessageArea = ({ selectedChannel }: { selectedChannel: string }) => {
-  const [newMessages, setNewMessages] = useState<Message[]>([]);
-  const socketUrl = `${WS_URL}/${selectedChannel}/`;
+const MessageArea = ({ selectedChannelId }: { selectedChannelId: string }) => {
+  const socketUrl = `${WS_URL}/${selectedChannelId}/`;
+  const [messages, setMessages] = useState<Message[]>([]);
 
-  const { sendJsonMessage, lastMessage } = useWebSocket(socketUrl, {
-    onOpen: (data) => {
-      console.log("Connected to server");
-      console.log("On Open:", data);
-    },
-    onClose: (data) => {
-      console.log("Disconnected from server");
-      console.log("On Close:", data);
-    },
-    onError: (event) => {
-      console.log("On Error:", event);
-    },
-    onMessage: (event) => {
-      console.log("On Message:", event);
-      const parsedData = JSON.parse(event.data);
-      setNewMessages((prev) => [
-        ...prev,
-        {
-          id: Date.now(),
-          text: parsedData.message,
-          author: parsedData.author || "Anonymous",
-          channel: parsedData.channel || selectedChannel,
-          timestamp: new Date()
-            .toISOString()
-            .replace("T", " ")
-            .substring(0, 19),
-        },
-      ]);
-    },
+  // Track previous channel for clean transitions
+  const [prevChannelId, setPrevChannelId] = useState<string | null>(null);
+
+  const { getAll: fetchMessages } = useCrud<Message[]>({
+    apiPath: `messages/?channel_id=${selectedChannelId}`,
+    initialData: [],
   });
 
+  // Reset messages when changing channels
   useEffect(() => {
-    if (lastMessage !== null) {
-      console.log("Last Message:", lastMessage);
+    if (prevChannelId !== selectedChannelId) {
+      setMessages([]);
+      setPrevChannelId(selectedChannelId);
     }
-  }, [lastMessage]);
+  }, [selectedChannelId, prevChannelId]);
+
+  // Memoize the fetch function to avoid unnecessary re-renders
+  const loadMessages = useCallback(async () => {
+    try {
+      const messageData = await fetchMessages();
+      if (messageData) {
+        // Add a small delay to ensure proper animation
+        setTimeout(() => {
+          setMessages(messageData);
+        }, 100);
+      }
+    } catch (error) {
+      console.error("Error fetching messages:", error);
+    }
+  }, [fetchMessages]);
+
+  const { sendJsonMessage } = useWebSocket(socketUrl, {
+    onOpen: (data) => {
+      console.info("onOpen:", data);
+      loadMessages();
+    },
+    onClose: (data) => {
+      console.info("onClose:", data);
+    },
+    onError: (event) => {
+      console.info("onError:", event);
+    },
+    onMessage: (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.message) {
+          setMessages((prev) => [...prev, data.message]);
+        }
+      } catch (error) {
+        console.error("Error parsing message:", error);
+      }
+    },
+    // Reconnect automatically and handle channel changes
+    shouldReconnect: () => true,
+    reconnectInterval: 3000,
+  });
+
+  const handleSendMessage = (content: string) => {
+    if (!content.trim()) return;
+
+    sendJsonMessage({
+      content: content,
+      conversation: selectedChannelId,
+    });
+  };
 
   return (
     <>
-        <MessageList messages={newMessages.filter((msg) => msg.channel === selectedChannel)} />
-      <MessageInput
-        onSendMessage={(msg) => {
-          sendJsonMessage({ message: msg, channel: selectedChannel });
-        }}
-      />
+      <MessageList messages={messages} />
+      <MessageInput onSendMessage={handleSendMessage} />
     </>
   );
 };

@@ -2,20 +2,21 @@ import { useState } from "react";
 import { Box } from "@mui/material";
 import Sidebar from "./Sidebar";
 import ChatArea from "./ChatArea";
+import type { Server, Channel } from "../types/interfaces";
 
 const SIDEBAR_WIDTH = 240;
 
 const ChatLayout = () => {
-  const [selectedServer, setSelectedServer] = useState<string | null>(null);
-  const [selectedChannel, setSelectedChannel] = useState<string | null>(null);
+  const [selectedServer, setSelectedServer] = useState<Server | null>(null);
+  const [selectedChannel, setSelectedChannel] = useState<Channel | null>(null);
 
-  const handleServerSelect = (serverId: string) => {
-    setSelectedServer(serverId);
+  const handleServerSelect = (server: Server) => {
+    setSelectedServer(server);
   };
 
-    const handleChannelSelect = (serverId: string, channelId: string) => {
-    setSelectedServer(serverId);
-    setSelectedChannel(channelId);
+  const handleChannelSelect = (server: Server, channel: Channel) => {
+    setSelectedServer(server);
+    setSelectedChannel(channel);
   };
 
   return (
