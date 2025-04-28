@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+from datetime import timedelta
 
 load_dotenv()  # take environment variables
 
@@ -31,13 +32,14 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 DEBUG = os.environ.get("DEBUG")
 
 ALLOWED_HOSTS = [
-    "localhost",
-    "127.0.0.1",
+    "10.10.8.232",
 ]
 
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_ALL_ORIGINS = True
+
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
+    "http://10.10.8.232:5173",
 ]
 
 
@@ -95,8 +97,19 @@ REST_FRAMEWORK = {
     # YOUR SETTINGS
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "account.authenticate.CustomJWTAuthentication",
     ],
+}
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=1),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "JWT_COOKIE_SAMESITE": "strict",
+    "JWT_COOKIE_SECURE": False,
+    "JWT_COOKIE_HTTP_ONLY": True,
+    "JWT_AUTH_HEADER_TYPES": ("Bearer",),
+    "ACCESS_TOKEN_NAME": "access",
+    "REFRESH_TOKEN_NAME": "refresh",
 }
 
 CHANNEL_LAYERS = {"default": {"BACKEND": "channels.layers.InMemoryChannelLayer"}}

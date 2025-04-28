@@ -15,7 +15,6 @@ const MessageArea = ({ selectedChannelId }: { selectedChannelId: string }) => {
 
   const { getAll: fetchMessages } = useCrud<Message[]>({
     apiPath: `messages/?channel_id=${selectedChannelId}`,
-    initialData: [],
   });
 
   // Reset messages when changing channels

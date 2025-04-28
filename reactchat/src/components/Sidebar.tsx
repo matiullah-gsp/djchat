@@ -40,7 +40,6 @@ const Sidebar = ({
     getAll,
   } = useCrud<Server[]>({
     apiPath: "servers/",
-    initialData: [],
   });
 
   // Fetch data only once on component mount

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -12,23 +12,20 @@ import {
   Alert,
   CircularProgress,
 } from "@mui/material";
-import { useAxiosWithInterceptor } from "../helper/jwt-interceptor";
-import { BASE_URL } from "../config";
-import { AxiosError } from "axios";
-import { useAuth } from "../hook/useAuth";
-
-// Define proper error types
-interface ApiError {
-  detail?: string;
-  non_field_errors?: string[];
-}
+import { useAuthService } from "../services/auth-service";
 
 const Login = () => {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const axios = useAxiosWithInterceptor();
-  const { setToken } = useAuth();
+  const { login, isLoggedIn } = useAuthService(navigate);
+
+  // Use useEffect for redirection instead of conditional rendering
+  useEffect(() => {
+    if (isLoggedIn) {
+      navigate("/", { replace: true });
+    }
+  }, [isLoggedIn, navigate]);
 
   const formik = useFormik({
     initialValues: {
@@ -48,27 +45,25 @@ const Login = () => {
         setIsLoading(true);
         setError(null);
 
-        const response = await axios.post(`${BASE_URL}/token/`, {
-          username: values.username,
-          password: values.password,
-        });
+        const response = await login(values.username, values.password);
 
-        if (response.data.access) {
-          setToken(response.data.access);
-          navigate("/");
+        if (!response.success) {
+          setError("Invalid username or password");
         }
-      } catch (err) {
-        const error = err as AxiosError<ApiError>;
-        const errorMessage =
-          error.response?.data?.detail ||
-          error.response?.data?.non_field_errors?.[0] ||
-          "An error occurred during login";
-        setError(errorMessage);
+        // Navigation will happen automatically through the useEffect above
+      } catch (err: unknown) {
+        const error = err as Error;
+        setError(error.message || "An error occurred during login");
       } finally {
         setIsLoading(false);
       }
     },
   });
+
+  // If already logged in, don't render the form
+  if (isLoggedIn) {
+    return null;
+  }
 
   return (
     <Container component="main" maxWidth="xs">

@@ -1,7 +1,8 @@
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
-import Routes from "./Routes";
-import AuthProvider from "./providers/AuthProvider";
+import { BrowserRouter } from "react-router-dom";
+import AppRoutes from "./Routes";
+import { AuthProvider } from "./context/AuthContext";
 // Create a dark theme for the chat app
 const darkTheme = createTheme({
   palette: {
@@ -25,12 +26,14 @@ const darkTheme = createTheme({
 
 const App = () => {
   return (
-    <AuthProvider>
-      <ThemeProvider theme={darkTheme}>
-        <CssBaseline />
-        <Routes />
-      </ThemeProvider>
-    </AuthProvider>
+    <BrowserRouter>
+      <AuthProvider>
+        <ThemeProvider theme={darkTheme}>
+          <CssBaseline />
+          <AppRoutes />
+        </ThemeProvider>
+      </AuthProvider>
+    </BrowserRouter>
   );
 };
 

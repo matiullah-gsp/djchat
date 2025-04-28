@@ -9,7 +9,7 @@ interface UseCrudProps<T> {
   initialData?: T;
 }
 
-function useCrud<T>({ apiPath, initialData }: UseCrudProps<T>) {
+function useCrud<T>({ apiPath }: UseCrudProps<T>) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<unknown | null>(null);
   //   const [data, setData] = useState<T | undefined>(initialData);

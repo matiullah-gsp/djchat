@@ -1,36 +1,29 @@
-import {
-  Navigate,
-  RouteObject,
-  RouterProvider,
-  createBrowserRouter,
-} from "react-router-dom";
+import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
-import { useAuth } from "./hook/useAuth";
+import { useAuthService } from "./services/auth-service";
+import ProtectedRoute from "./components/ProtectedRoute";
 
-const Routes = () => {
-  // Get authentication state from context
-  const { token } = useAuth();
+const AppRoutes = () => {
+  const navigate = useNavigate();
+  const { isLoggedIn } = useAuthService(navigate);
 
-  // Define routes based on authentication state
-  const routes: RouteObject[] = [
-    {
-      path: "/login",
-      element: token ? <Navigate to="/" replace /> : <Login />,
-    },
-    {
-      path: "/",
-      element: token ? <Home /> : <Navigate to="/login" replace />,
-    },
-    {
-      path: "*",
-      element: <Navigate to="/" replace />,
-    },
-  ];
+  return (
+    <Routes>
+      <Route
+        path="/login"
+        element={isLoggedIn ? <Navigate to="/" replace /> : <Login />}
+      />
 
-  const router = createBrowserRouter(routes);
+      <Route path="/" element={<ProtectedRoute />}>
+        <Route index element={<Home />} />
+        {/* Add more protected routes here */}
+      </Route>
 
-  return <RouterProvider router={router} />;
+      {/* Catch all route */}
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
 };
 
-export default Routes;
+export default AppRoutes;
