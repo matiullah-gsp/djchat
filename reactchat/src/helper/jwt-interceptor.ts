@@ -1,5 +1,6 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
 import { BASE_URL } from "../config";
+import { useAuthService } from "../services/auth-service";
 
 export const createAuthFailedEvent = () => {
   const event = new CustomEvent("auth-failed");
@@ -8,6 +9,7 @@ export const createAuthFailedEvent = () => {
 };
 
 const useAxiosWithInterceptor = (): AxiosInstance => {
+  const { logout } = useAuthService();
   const urlOptions: AxiosRequestConfig = {
     baseURL: BASE_URL,
     withCredentials: true,
@@ -30,19 +32,19 @@ const useAxiosWithInterceptor = (): AxiosInstance => {
         originalRequest._retry = true;
 
         try {
-          await axios.post(
+          const response = await axios.post(
             `${BASE_URL}/token/refresh/`,
             {},
-            { withCredentials: true }
+            {
+              withCredentials: true,
+            }
           );
-          return jwtAxios(originalRequest);
+          if (response.status === 200) {
+            return jwtAxios(originalRequest);
+          }
+          return Promise.reject(response);
         } catch (refreshError) {
-          console.error("Error refreshing token:", refreshError);
-
-          localStorage.setItem("isLoggedIn", "false");
-
-          createAuthFailedEvent();
-
+          await logout();
           return Promise.reject(refreshError);
         }
       }

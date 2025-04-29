@@ -2,9 +2,8 @@ import { AppBar, Box, Toolbar, Typography, IconButton } from "@mui/material";
 import TagIcon from "@mui/icons-material/Tag";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
 import { useAuthService } from "../services/auth-service";
-
+import { JoinButton } from "./JoinButton";
 interface ChannelHeaderProps {
   selectedChannelId: string | null;
   serverName?: string;
@@ -19,18 +18,11 @@ const ChannelHeader = ({
   channelTopic,
 }: ChannelHeaderProps) => {
   const navigate = useNavigate();
-  const { logout, isLoggedIn } = useAuthService(navigate);
-  const [username, setUsername] = useState<string>("");
-
-  useEffect(() => {
-    const storedUsername = localStorage.getItem("username");
-    if (storedUsername) {
-      setUsername(storedUsername);
-    }
-  }, [isLoggedIn]);
-
-  const handleLogout = () => {
-    logout();
+  const { logout, isLoggedIn, currentUser } = useAuthService(navigate);
+  
+  
+  const handleLogout = async () => {
+    await logout();
   };
 
   return (
@@ -79,9 +71,12 @@ const ChannelHeader = ({
           )}
         </Box>
 
+        <JoinButton />
+
+
         {isLoggedIn && (
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            {username && (
+            {currentUser && (
               <Typography
                 variant="body2"
                 sx={{
@@ -89,7 +84,7 @@ const ChannelHeader = ({
                   fontWeight: 500,
                 }}
               >
-                {username}
+                {currentUser.username}
               </Typography>
             )}
             <IconButton

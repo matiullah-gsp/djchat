@@ -3,6 +3,8 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import { useAuthService } from "./services/auth-service";
 import ProtectedRoute from "./components/ProtectedRoute";
+import { MembershipProvider } from "./context/MemberContext";
+import { MembershipCheck } from "./components/MemeberShipCheck";
 
 const AppRoutes = () => {
   const navigate = useNavigate();
@@ -16,7 +18,22 @@ const AppRoutes = () => {
       />
 
       <Route path="/" element={<ProtectedRoute />}>
-        <Route index element={<Home />} />
+        <Route
+          index
+          element={
+            <MembershipProvider>
+              <Home />
+            </MembershipProvider>
+          }
+        />
+        <Route
+          path="/server/:serverId"
+          element={
+            <MembershipProvider>
+              <Home />
+            </MembershipProvider>
+          }
+        />
         {/* Add more protected routes here */}
       </Route>
 

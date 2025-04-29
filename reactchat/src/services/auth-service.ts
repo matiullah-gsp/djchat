@@ -2,13 +2,17 @@ import { useEffect, useState } from "react";
 import { BASE_URL } from "../config";
 import axios from "axios";
 import { NavigateFunction } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
+interface User {
+  id: string;
+  username: string;
+}
 
 export function useAuthService(navigate?: NavigateFunction) {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(() => {
     const isLoggedInFlag = localStorage.getItem("isLoggedIn");
     return isLoggedInFlag === "true";
   });
+  const [currentUser, setCurrentUser] = useState<User | null>();
 
   useEffect(() => {
     const checkAuthStatus = () => {
@@ -16,8 +20,15 @@ export function useAuthService(navigate?: NavigateFunction) {
       setIsLoggedIn(isLoggedInFlag === "true");
     };
 
-    checkAuthStatus();
+    const getCurrentUser = () => {
+      setCurrentUser({
+        username: localStorage.getItem("username") || "",
+        id: localStorage.getItem("user_id") || "",
+      });
+    };
 
+    checkAuthStatus();
+    getCurrentUser();
     const handleStorageChange = () => {
       checkAuthStatus();
     };
@@ -54,11 +65,12 @@ export function useAuthService(navigate?: NavigateFunction) {
       );
 
       localStorage.setItem("isLoggedIn", "true");
+      localStorage.setItem("username", response.data.username);
+      localStorage.setItem("user_id", response.data.user_id);
       setIsLoggedIn(true);
+      const userInfo = await getUserInfo(response.data.user_id);
 
-      const userInfo = await getUserInfoFromToken(response.data.access);
-
-      return { success: true, data: response.data };
+      return { success: true, data: response.data, userInfo };
     } catch (error) {
       localStorage.setItem("isLoggedIn", "false");
       setIsLoggedIn(false);
@@ -70,32 +82,40 @@ export function useAuthService(navigate?: NavigateFunction) {
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
     localStorage.setItem("isLoggedIn", "false");
+    localStorage.removeItem("username");
+    localStorage.removeItem("user_id");
     setIsLoggedIn(false);
 
-    if (navigate) {
-      navigate("/login", { replace: true });
-    } else {
-      window.location.href = "/login";
+    try {
+      await axios.post(`${BASE_URL}/logout/`, {}, { withCredentials: true });
+      if (navigate) {
+        navigate("/login", { replace: true });
+      } else {
+        window.location.href = "/login";
+      }
+    } catch (logoutError) {
+      return Promise.reject(logoutError);
     }
   };
 
-  return { login, logout, isLoggedIn };
-}
+  const refreshAccessToken = async () => {
+    try {
+      await axios.post(
+        `${BASE_URL}/token/refresh/`,
+        {},
+        {
+          withCredentials: true,
+        }
+      );
+    } catch (refreshError) {
+      return Promise.reject(refreshError);
+    }
+  };
 
-const getUserInfoFromToken = async (accessToken: string) => {
-  const decodedToken = jwtDecode(accessToken) as {
-    user_id: string;
-    username: string;
-    email: string;
-  };
-  return {
-    user_id: decodedToken.user_id,
-    username: decodedToken.username,
-    email: decodedToken.email,
-  };
-};
+  return { login, logout, isLoggedIn, currentUser, refreshAccessToken };
+}
 
 const getUserInfo = async (userId: string) => {
   const response = await axios.get(`${BASE_URL}/accounts/?user_id=${userId}`, {

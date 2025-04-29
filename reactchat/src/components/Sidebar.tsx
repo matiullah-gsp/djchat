@@ -8,6 +8,7 @@ import {
   IconButton,
 } from "@mui/material";
 import RefreshIcon from "@mui/icons-material/Refresh";
+import { useNavigate, useParams } from "react-router-dom";
 import ServerItem from "./ServerItem";
 import LoadingScreen from "./LoadingScreen";
 import useCrud from "../hook/useCrud";
@@ -32,30 +33,41 @@ const Sidebar = ({
     Record<string, boolean>
   >({});
   const [servers, setServers] = useState<Server[]>([]);
+  const { serverId } = useParams<{ serverId: string }>();
+  const navigate = useNavigate();
 
   // Use useCrud directly in the component
-  const {
-    // data: servers = [],
-    loading,
-    getAll,
-  } = useCrud<Server[]>({
+  const { loading, getAll } = useCrud<Server[]>({
     apiPath: "servers/",
   });
 
   // Fetch data only once on component mount
   useEffect(() => {
     getAll().then((data) => {
-      setServers(data);
+      if (data) {
+        setServers(data);
+      }
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Auto-expand the first server if there's data and no server is selected
+  // Auto-expand the server based on URL param or select first server if none is selected
   useEffect(() => {
-    if (servers.length > 0 && !selectedServer) {
-      setExpandedServers((prev) => ({ ...prev, [servers[0].id]: true }));
+    if (servers.length > 0) {
+      if (serverId) {
+        const server = servers.find((s) => s.id === serverId);
+        if (server) {
+          setExpandedServers((prev) => ({ ...prev, [server.id]: true }));
+          if (!selectedServer || selectedServer.id !== server.id) {
+            onServerSelect(server);
+          }
+        }
+      } else if (!selectedServer) {
+        setExpandedServers((prev) => ({ ...prev, [servers[0].id]: true }));
+        navigate(`/server/${servers[0].id}`);
+      }
     }
-  }, [servers, selectedServer]);
+  }, [servers, serverId, selectedServer, onServerSelect, navigate]);
 
   const handleServerSelect = (server: Server) => {
     onServerSelect(server);
@@ -74,7 +86,9 @@ const Sidebar = ({
 
   const handleRefresh = () => {
     getAll().then((data) => {
-      setServers(data);
+      if (data) {
+        setServers(data);
+      }
     });
   };
 

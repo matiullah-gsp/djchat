@@ -9,6 +9,7 @@ import {
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import ForumIcon from "@mui/icons-material/Forum";
+import { useNavigate } from "react-router-dom";
 import ChannelItem from "./ChannelItem";
 import type { Server, Channel } from "../types/interfaces";
 
@@ -31,9 +32,12 @@ const ServerItem = ({
   onChannelSelect,
   onToggleExpand,
 }: ServerItemProps) => {
+  const navigate = useNavigate();
+
   const handleServerClick = () => {
     onToggleExpand(server);
     onServerSelect(server);
+    navigate(`/server/${server.id}`);
   };
 
   const hasChannels = server.channels && server.channels.length > 0;
