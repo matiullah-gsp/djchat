@@ -8,14 +8,16 @@ from channels.routing import ProtocolTypeRouter, URLRouter
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "djchat.settings")
 django_application = get_asgi_application()
-
+from webchat.middleware import JWTAuthenticationMiddleware
 
 
 from webchat import urls
 
 application = ProtocolTypeRouter(
     {
-        "http": django_application,
-        "websocket": URLRouter(urls.websocket_urlpatterns),
+        "http": django_application, 
+        "websocket": JWTAuthenticationMiddleware(
+            URLRouter(urls.websocket_urlpatterns)
+        ),
     }
 )

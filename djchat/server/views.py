@@ -5,6 +5,9 @@ from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 from django.db.models import Count
 from rest_framework.permissions import IsAuthenticated
+from django.shortcuts import get_object_or_404
+from rest_framework import status
+from rest_framework.decorators import action
 
 
 # Create your views here.
@@ -55,3 +58,48 @@ class ServerListViewSet(viewsets.ViewSet):
 
         serializer = self.serializer_class(servers, many=True)
         return Response(serializer.data)
+
+
+class ServerMembershipViewSet(viewsets.ViewSet):
+
+    permission_classes = [IsAuthenticated]
+
+    def create(self, request, server_id):
+        server = get_object_or_404(Server, pk=server_id)
+        user = request.user
+        if server.members.filter(pk=user.id).exists():
+            print("User is already a member of this server")
+            return Response(
+                {"error": "User is already a member of this server"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        server.members.add(user)
+        server.save()
+        return Response(
+            {"message": "User joined to the server successfully"},
+            status=status.HTTP_204_NO_CONTENT,
+        )
+
+    @action(detail=False, methods=["delete"])
+    def remove_member(self, request, server_id):
+        server = get_object_or_404(Server, pk=server_id)
+        user = request.user
+        
+        if not server.members.filter(pk=user.id).exists():
+            return Response(
+                {"error": "User is not a member of this server"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        server.members.remove(user)
+        server.save()
+        return Response(
+            {"message": "User left the server successfully"},
+            status=status.HTTP_204_NO_CONTENT,
+        )
+
+    @action(detail=False, methods=["get"])
+    def is_member(self, request, server_id):
+        server = get_object_or_404(Server, pk=server_id)
+        user = request.user
+        is_member = server.members.filter(pk=user.id).exists()
+        return Response({"is_member": is_member})

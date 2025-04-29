@@ -10,6 +10,15 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from .crypto import encrypt_token
+from rest_framework.views import APIView
+
+
+class LogoutAPIView(APIView):
+    def post(self, request, format=None):
+        response = Response("Logged out successfully!")
+        response.set_cookie("access", "", expires=0)
+        response.set_cookie("refresh", "", expires=0)
+        return response
 
 
 class AccountViewSet(viewsets.ModelViewSet):

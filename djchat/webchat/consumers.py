@@ -1,7 +1,7 @@
 from channels.generic.websocket import JsonWebsocketConsumer
 from asgiref.sync import async_to_sync
 import json
-
+from urllib.parse import parse_qs
 
 # Consumer handle coming messages and outgoing messages
 # class WebChatConsumer(JsonWebsocketConsumer):
@@ -63,16 +63,12 @@ class WebChatConsumer(JsonWebsocketConsumer):
 
     def connect(self):
         self.accept()
-
+        self.user = self.scope["user"]
+        if not self.user.is_authenticated:
+            self.close(code=4001)
+            return
         self.channel_id = self.scope["url_route"]["kwargs"]["channel_id"]
-        self.user = User.objects.first()
-
         async_to_sync(self.channel_layer.group_add)(self.channel_id, self.channel_name)
-
-    def disconnect(self, close_code):
-        async_to_sync(self.channel_layer.group_discard)(
-            self.channel_id, self.channel_name
-        )
 
     def receive_json(self, content):
         try:
@@ -114,7 +110,8 @@ class WebChatConsumer(JsonWebsocketConsumer):
             self.close()
 
     def disconnect(self, close_code):
-        async_to_sync(self.channel_layer.group_discard)(
-            self.channel_id, self.channel_name
-        )
+        if self.channel_id and self.channel_name:
+            async_to_sync(self.channel_layer.group_discard)(
+                self.channel_id, self.channel_name
+            )
         super().disconnect(close_code)

@@ -23,9 +23,14 @@ from drf_spectacular.views import (
     SpectacularSwaggerView,
 )
 from rest_framework import routers
-from server.views import ServerListViewSet
+from server.views import ServerListViewSet, ServerMembershipViewSet
 from webchat.views import MessageViewSet
-from account.views import AccountViewSet, JWTCookieTokenObtainPairView, JWTCookieTokenRefreshView
+from account.views import (
+    AccountViewSet,
+    JWTCookieTokenObtainPairView,
+    JWTCookieTokenRefreshView,
+    LogoutAPIView,
+)
 from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework_simplejwt.views import (
@@ -36,6 +41,11 @@ router = routers.DefaultRouter()
 router.register("api/servers", ServerListViewSet, basename="servers")
 router.register("api/messages", MessageViewSet, basename="messages")
 router.register("api/accounts", AccountViewSet, basename="accounts")
+router.register(
+    r"api/server-memberships/(?P<server_id>[0-9a-f-]{36})/membership",
+    ServerMembershipViewSet,
+    basename="server-memberships",
+)
 
 
 urlpatterns = [
@@ -54,6 +64,7 @@ urlpatterns = [
     path("api/token/", JWTCookieTokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("api/token/refresh/", JWTCookieTokenRefreshView.as_view(), name="token_refresh"),
     path("api/token/verify/", TokenVerifyView.as_view(), name="token_verify"),
+    path("api/logout/", LogoutAPIView.as_view(), name="logout"),
 ] + router.urls
 
 

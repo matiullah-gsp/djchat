@@ -99,17 +99,26 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "account.authenticate.CustomJWTAuthentication",
     ],
+    "DEFAULT_THROTTLE_CLASSES": [
+        "rest_framework.throttling.AnonRateThrottle",  # For unauthenticated users
+        "rest_framework.throttling.UserRateThrottle",  # For authenticated users
+    ],
+    "DEFAULT_THROTTLE_RATES": {
+        "anon": "10/minute",  # Limit anonymous users to 10 requests per minute
+        "user": "100/minute",  # Limit authenticated users to 100 requests per minute
+    },
 }
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(seconds=10),
-    "REFRESH_TOKEN_LIFETIME": timedelta(minutes=1),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
     "JWT_COOKIE_SAMESITE": "strict",
     "JWT_COOKIE_SECURE": False,
     "JWT_COOKIE_HTTP_ONLY": True,
-    "JWT_AUTH_HEADER_TYPES": ("Bearer",),
     "ACCESS_TOKEN_NAME": "access",
     "REFRESH_TOKEN_NAME": "refresh",
+    "ALGORITHM": "HS256",
+    "SIGNING_KEY": SECRET_KEY,
 }
 
 CHANNEL_LAYERS = {"default": {"BACKEND": "channels.layers.InMemoryChannelLayer"}}
